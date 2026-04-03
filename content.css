@@ -1,10 +1,26 @@
+.ts-tracker-label {
+  display: inline-block;
+  margin-left: 8px;
+  margin-right: 4px;
+  max-width: min(320px, 55vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  color: #b71c1c;
+}
+
 .ts-tracker-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 18px;
   height: 18px;
-  margin-left: 6px;
+  margin-left: 0;
   padding: 0 5px;
   border-radius: 9px;
   font-size: 11px;

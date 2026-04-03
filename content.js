@@ -1,6 +1,7 @@
 (function () {
   const TS = "tracker-tracker";
   const BADGE_CLASS = "ts-tracker-badge";
+  const LABEL_CLASS = "ts-tracker-label";
   const ATTR_THREAD = "data-ts-thread-id";
 
   /** @type {ReturnType<typeof setTimeout> | null} */
@@ -35,6 +36,61 @@
       if (m) return m[1];
     }
     return null;
+  }
+
+  /**
+   * Sender name shown in Gmail's thread list row (layout varies by density/theme).
+   * @param {HTMLElement} row
+   * @returns {string}
+   */
+  function senderFromListRow(row) {
+    const selectors = [
+      "span.bA4",
+      "span.bqe",
+      "span.bog",
+      "span.yW",
+      "span.yP",
+      "span.yX",
+      "td.yx span.yW",
+      "td.yx span",
+      "span[data-hovercard-id]",
+    ];
+    for (const sel of selectors) {
+      const el = row.querySelector(sel);
+      if (!el) continue;
+      let t = (el.textContent || "").trim().replace(/\s+/g, " ");
+      if (t.length > 1 && t.length < 180 && !/^\d+$/.test(t)) return t;
+    }
+    return "";
+  }
+
+  /**
+   * Sender in an open conversation / message (runs in Gmail's message iframe).
+   * @returns {string}
+   */
+  function senderFromOpenMessage() {
+    const selectors = [
+      "span.gD",
+      "h2.hP span",
+      "span[email].gD",
+      "span.ha span",
+      "span.go + span",
+    ];
+    for (const sel of selectors) {
+      const el = document.querySelector(sel);
+      if (!el) continue;
+      const t = (el.textContent || "").trim().replace(/\s+/g, " ");
+      if (t.length > 0 && t.length < 200) return t;
+    }
+    return "";
+  }
+
+  /**
+   * @param {string} sender
+   */
+  function trackingLabelText(sender) {
+    const name = (sender || "").trim() || "Someone";
+    return name + " is tracking this email";
   }
 
   function placeholderUrl() {
@@ -118,12 +174,13 @@
   /**
    * @param {string} threadId
    * @param {Array<{ kind: string; detail: string; url?: string }>} findings
+   * @param {string} [sender] display name from the open message (optional)
    */
-  function persistFindings(threadId, findings) {
+  function persistFindings(threadId, findings, sender) {
     if (!threadId || !findings.length) return;
     const key = `ts:${threadId}`;
     chrome.storage.local.get([key], (prev) => {
-      const existing = (prev && prev[key]) || { findings: [], updated: 0 };
+      const existing = (prev && prev[key]) || { findings: [], updated: 0, sender: "" };
       const map = new Map();
       for (const f of existing.findings) {
         map.set(`${f.kind}|${f.detail}|${f.url || ""}`, f);
@@ -131,8 +188,28 @@
       for (const f of findings) {
         map.set(`${f.kind}|${f.detail}|${f.url || ""}`, f);
       }
-      const next = { findings: [...map.values()], updated: Date.now() };
+      const prevSender = (existing.sender && String(existing.sender).trim()) || "";
+      const nextSender = (sender && String(sender).trim()) || prevSender;
+      const next = { findings: [...map.values()], sender: nextSender, updated: Date.now() };
       chrome.storage.local.set({ [key]: next });
+    });
+  }
+
+  /**
+   * Fill in sender from the list row when we have findings but no stored name yet.
+   * @param {string} threadId
+   * @param {string} senderFromRow
+   */
+  function persistSenderFromRowIfMissing(threadId, senderFromRow) {
+    if (!threadId || !senderFromRow || !senderFromRow.trim()) return;
+    const key = `ts:${threadId}`;
+    chrome.storage.local.get([key], (data) => {
+      const entry = data[key];
+      if (!entry || !entry.findings || !entry.findings.length) return;
+      if (entry.sender && String(entry.sender).trim()) return;
+      chrome.storage.local.set({
+        [key]: { ...entry, sender: senderFromRow.trim(), updated: Date.now() },
+      });
     });
   }
 
@@ -150,9 +227,15 @@
 
   /**
    * @param {Array<{ kind: string; detail: string; url?: string }>} findings
+   * @param {string} [sender]
    */
-  function formatTooltip(findings) {
-    const lines = ["Tracker Tracker — blocked / detected:"];
+  function formatTooltip(findings, sender) {
+    const lines = [];
+    if (sender && sender.trim()) {
+      lines.push(trackingLabelText(sender.trim()));
+      lines.push("");
+    }
+    lines.push("Tracker Tracker — blocked / detected:");
     const byKind = {};
     for (const f of findings) {
       if (!byKind[f.kind]) byKind[f.kind] = [];
@@ -211,29 +294,48 @@
       if (!entry || !entry.findings || !entry.findings.length) {
         const badge = row.querySelector("." + BADGE_CLASS);
         if (badge) badge.remove();
+        const label = row.querySelector("." + LABEL_CLASS);
+        if (label) label.remove();
         row.removeAttribute(ATTR_THREAD);
         return;
       }
 
       row.setAttribute(ATTR_THREAD, threadId);
-      const tipText = formatTooltip(entry.findings);
+      let sender = (entry.sender && String(entry.sender).trim()) || "";
+      if (!sender) {
+        sender = senderFromListRow(row);
+        if (sender) persistSenderFromRowIfMissing(threadId, sender);
+      }
+      const labelText = trackingLabelText(sender);
+      const tipText = formatTooltip(entry.findings, sender);
       let badge = row.querySelector("." + BADGE_CLASS);
+      const host =
+        row.querySelector("span.bqe, span.bog, td.yf") ||
+        row.querySelector("td.yx, td.xY, td.apU") ||
+        row.querySelector("td") ||
+        row;
+      let label = row.querySelector("." + LABEL_CLASS);
+      if (!label) {
+        label = document.createElement("span");
+        label.className = LABEL_CLASS;
+        host.appendChild(label);
+      }
       if (!badge) {
         badge = document.createElement("span");
         badge.className = BADGE_CLASS;
         badge.setAttribute("role", "img");
-        badge.setAttribute("aria-label", "This thread contains detected trackers");
-        const host =
-          row.querySelector("span.bqe, span.bog, td.yf") ||
-          row.querySelector("td.yx, td.xY, td.apU") ||
-          row.querySelector("td") ||
-          row;
         host.appendChild(badge);
       }
+      if (label && badge && label.nextSibling !== badge) {
+        host.insertBefore(label, badge);
+      }
+      badge.setAttribute("aria-label", labelText);
       badge.title = tipText;
       badge.textContent = String(entry.findings.length);
       badge.onmouseenter = () => showFloatTip(badge, tipText);
       badge.onmouseleave = () => hideFloatTip();
+      label.textContent = labelText;
+      label.title = tipText;
     });
   }
 
@@ -259,7 +361,10 @@
     window.addEventListener("message", (ev) => {
       if (ev.source !== window && ev.data && ev.data.source === TS && Array.isArray(ev.data.findings)) {
         const tid = getThreadIdFromHash() || lastThreadId;
-        if (tid && ev.data.findings.length) persistFindings(tid, ev.data.findings);
+        if (tid && ev.data.findings.length) {
+          const sender = typeof ev.data.sender === "string" ? ev.data.sender : "";
+          persistFindings(tid, ev.data.findings, sender);
+        }
       }
     });
 
@@ -298,7 +403,8 @@
         if (!document.body) return;
         const findings = deepScan(document.body);
         if (findings.length && window.top) {
-          window.top.postMessage({ source: TS, findings }, "https://mail.google.com");
+          const sender = senderFromOpenMessage();
+          window.top.postMessage({ source: TS, findings, sender }, "https://mail.google.com");
         }
       } catch {
         /* ignore */
