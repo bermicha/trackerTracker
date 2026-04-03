@@ -1,5 +1,5 @@
-Chrome Web Store — listing checklist for Tracker Tracker
-=========================================================
+Chrome Web Store — listing checklist for PixelCrush
+=====================================================
 
 SCREENSHOTS
 -----------
@@ -12,7 +12,7 @@ PACKAGE
 -------
 1. Run (from repo root, PowerShell):
      .\scripts\package-for-store.ps1
-2. Upload the generated trackerTracker-store.zip in the Developer Dashboard:
+2. Upload the generated pixelcrush-store.zip in the Developer Dashboard:
      https://chrome.google.com/webstore/devconsole
 
 PRIVACY POLICY URL (required)
@@ -22,8 +22,8 @@ The store requires a public HTTPS URL to this policy.
 After you push the docs/ folder, enable GitHub Pages:
   Repository → Settings → Pages → Build from branch "main" → Folder "/docs" → Save
 
-Then use (adjust username/repo if yours differs):
-  https://bermicha.github.io/trackerTracker/privacy-policy.html
+Then use (adjust username/repo if yours differs; must match your GitHub Pages site):
+  https://bermicha.github.io/pixelcrush/privacy-policy.html
 
 Paste that exact URL in the Privacy policy field in the listing.
 

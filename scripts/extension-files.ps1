@@ -10,7 +10,7 @@ $script:ExtensionRelativePaths = @(
   "icons"
 )
 
-function Copy-TrackerExtensionFiles {
+function Copy-PixelCrushExtensionFiles {
   param(
     [Parameter(Mandatory = $true)]
     [string] $SourceRoot,

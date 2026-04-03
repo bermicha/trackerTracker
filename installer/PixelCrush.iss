@@ -1,10 +1,10 @@
 ; Build with Inno Setup 6: https://jrsoftware.org/isinfo.php
-; Open this file in Inno Setup Compiler and click Build (or ISCC.exe TrackerTracker.iss).
+; Open this file in Inno Setup Compiler and click Build (or ISCC.exe PixelCrush.iss).
 
-#define MyAppName "Tracker Tracker"
+#define MyAppName "PixelCrush"
 #define MyAppVersion "1.0.0"
 #define MyAppPublisher "bermicha"
-#define MyAppURL "https://github.com/bermicha/trackerTracker"
+#define MyAppURL "https://github.com/bermicha/pixelcrush"
 
 [Setup]
 AppId={{A7B2C9E1-4F3D-4A1B-9E8C-112233445566}
@@ -13,12 +13,12 @@ AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
-DefaultDirName={localappdata}\TrackerTracker
+DefaultDirName={localappdata}\PixelCrush
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputDir=.
-OutputBaseFilename=TrackerTracker-Setup
+OutputBaseFilename=PixelCrush-Setup
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
@@ -38,8 +38,8 @@ Source: "..\rules\*"; DestDir: "{app}\extension\rules"; Flags: ignoreversion rec
 Source: "..\icons\*"; DestDir: "{app}\extension\icons"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName} (Chrome)"; Filename: "{code:GetChromeExe}"; Parameters: "--load-extension=""{app}\extension"""; Comment: "Launch Chrome with Tracker Tracker loaded"
-Name: "{autodesktop}\{#MyAppName} (Chrome)"; Filename: "{code:GetChromeExe}"; Parameters: "--load-extension=""{app}\extension"""; Comment: "Launch Chrome with Tracker Tracker loaded"
+Name: "{autoprograms}\{#MyAppName} (Chrome)"; Filename: "{code:GetChromeExe}"; Parameters: "--load-extension=""{app}\extension"""; Comment: "Launch Chrome with PixelCrush loaded"
+Name: "{autodesktop}\{#MyAppName} (Chrome)"; Filename: "{code:GetChromeExe}"; Parameters: "--load-extension=""{app}\extension"""; Comment: "Launch Chrome with PixelCrush loaded"
 
 [Code]
 function GetChromeExe(Dummy: string): string;

@@ -1,11 +1,11 @@
-# Removes Tracker Tracker install folder and shortcuts created by the installer.
+# Removes PixelCrush install folder and shortcuts created by the installer.
 $ErrorActionPreference = "Stop"
-$installRoot = Join-Path $env:LOCALAPPDATA "TrackerTracker"
+$installRoot = Join-Path $env:LOCALAPPDATA "PixelCrush"
 $desktop = [Environment]::GetFolderPath("Desktop")
 $startMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
 foreach ($p in @(
-  (Join-Path $desktop "Tracker Tracker (Chrome).lnk"),
-  (Join-Path $startMenu "Tracker Tracker (Chrome).lnk")
+  (Join-Path $desktop "PixelCrush (Chrome).lnk"),
+  (Join-Path $startMenu "PixelCrush (Chrome).lnk")
 )) {
   if (Test-Path -LiteralPath $p) {
     Remove-Item -LiteralPath $p -Force

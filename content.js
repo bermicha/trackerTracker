@@ -1,8 +1,20 @@
 (function () {
-  const TS = "tracker-tracker";
-  const BADGE_CLASS = "ts-tracker-badge";
-  const LABEL_CLASS = "ts-tracker-label";
-  const ATTR_THREAD = "data-ts-thread-id";
+  const PC = "pixel-crush";
+  const BADGE_CLASS = "pc-badge";
+  const LABEL_CLASS = "pc-label";
+  const ATTR_THREAD = "data-pc-thread-id";
+
+  /** @returns {chrome.storage.StorageArea | null} */
+  function getChromeStorageLocal() {
+    try {
+      if (typeof chrome === "undefined") return null;
+      if (!chrome.storage || !chrome.storage.local) return null;
+      if (typeof chrome.storage.local.get !== "function") return null;
+      return chrome.storage.local;
+    } catch {
+      return null;
+    }
+  }
 
   /** @type {ReturnType<typeof setTimeout> | null} */
   let scanDebounce = null;
@@ -106,14 +118,14 @@
    * @returns {{ findings: Array<{ kind: string; detail: string; url?: string }> }}
    */
   function scanAndBlock(root) {
-    const { findings } = self.TrackerScan.scanDom(root);
+    const { findings } = self.PixelCrushScan.scanDom(root);
     const ph = placeholderUrl();
 
     root.querySelectorAll("img").forEach((img) => {
-      const candidates = self.TrackerScan.imageCandidateUrls(img);
+      const candidates = self.PixelCrushScan.imageCandidateUrls(img);
       let shouldBlock = false;
       for (const url of candidates) {
-        const m = self.TrackerScan.matchUrl(url);
+        const m = self.PixelCrushScan.matchUrl(url);
         if (m) {
           shouldBlock = true;
           break;
@@ -178,8 +190,10 @@
    */
   function persistFindings(threadId, findings, sender) {
     if (!threadId || !findings.length) return;
-    const key = `ts:${threadId}`;
-    chrome.storage.local.get([key], (prev) => {
+    const sl = getChromeStorageLocal();
+    if (!sl) return;
+    const key = `pc:${threadId}`;
+    sl.get([key], (prev) => {
       const existing = (prev && prev[key]) || { findings: [], updated: 0, sender: "" };
       const map = new Map();
       for (const f of existing.findings) {
@@ -191,7 +205,7 @@
       const prevSender = (existing.sender && String(existing.sender).trim()) || "";
       const nextSender = (sender && String(sender).trim()) || prevSender;
       const next = { findings: [...map.values()], sender: nextSender, updated: Date.now() };
-      chrome.storage.local.set({ [key]: next });
+      sl.set({ [key]: next });
     });
   }
 
@@ -202,12 +216,14 @@
    */
   function persistSenderFromRowIfMissing(threadId, senderFromRow) {
     if (!threadId || !senderFromRow || !senderFromRow.trim()) return;
-    const key = `ts:${threadId}`;
-    chrome.storage.local.get([key], (data) => {
+    const sl = getChromeStorageLocal();
+    if (!sl) return;
+    const key = `pc:${threadId}`;
+    sl.get([key], (data) => {
       const entry = data[key];
       if (!entry || !entry.findings || !entry.findings.length) return;
       if (entry.sender && String(entry.sender).trim()) return;
-      chrome.storage.local.set({
+      sl.set({
         [key]: { ...entry, sender: senderFromRow.trim(), updated: Date.now() },
       });
     });
@@ -235,7 +251,7 @@
       lines.push(trackingLabelText(sender.trim()));
       lines.push("");
     }
-    lines.push("Tracker Tracker — blocked / detected:");
+    lines.push("PixelCrush — blocked / detected:");
     const byKind = {};
     for (const f of findings) {
       if (!byKind[f.kind]) byKind[f.kind] = [];
@@ -266,7 +282,7 @@
   function showFloatTip(badge, text) {
     if (!floatTipEl) {
       floatTipEl = document.createElement("div");
-      floatTipEl.className = "ts-float-tip";
+      floatTipEl.className = "pc-float-tip";
       floatTipEl.setAttribute("role", "tooltip");
       document.body.appendChild(floatTipEl);
     }
@@ -288,8 +304,10 @@
 
   function ensureBadgeOnRow(row, threadId) {
     if (!threadId) return;
-    const key = `ts:${threadId}`;
-    chrome.storage.local.get([key], (data) => {
+    const sl = getChromeStorageLocal();
+    if (!sl) return;
+    const key = `pc:${threadId}`;
+    sl.get([key], (data) => {
       const entry = data[key];
       if (!entry || !entry.findings || !entry.findings.length) {
         const badge = row.querySelector("." + BADGE_CLASS);
@@ -359,7 +377,7 @@
 
   function initTopFrame() {
     window.addEventListener("message", (ev) => {
-      if (ev.source !== window && ev.data && ev.data.source === TS && Array.isArray(ev.data.findings)) {
+      if (ev.source !== window && ev.data && ev.data.source === PC && Array.isArray(ev.data.findings)) {
         const tid = getThreadIdFromHash() || lastThreadId;
         if (tid && ev.data.findings.length) {
           const sender = typeof ev.data.sender === "string" ? ev.data.sender : "";
@@ -388,9 +406,15 @@
       true
     );
 
-    chrome.storage.onChanged.addListener(() => {
-      decorateListRows();
-    });
+    try {
+      if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.onChanged) {
+        chrome.storage.onChanged.addListener(() => {
+          decorateListRows();
+        });
+      }
+    } catch {
+      /* ignore */
+    }
 
     lastThreadId = getThreadIdFromHash();
     scheduleScan(lastThreadId);
@@ -404,7 +428,7 @@
         const findings = deepScan(document.body);
         if (findings.length && window.top) {
           const sender = senderFromOpenMessage();
-          window.top.postMessage({ source: TS, findings, sender }, "https://mail.google.com");
+          window.top.postMessage({ source: PC, findings, sender }, "https://mail.google.com");
         }
       } catch {
         /* ignore */

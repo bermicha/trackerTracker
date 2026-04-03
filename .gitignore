@@ -14,8 +14,12 @@ Desktop.ini
 npm-debug.log*
 
 # Store upload package (regenerate with scripts/package-for-store.ps1)
+pixelcrush-store.zip
 trackerTracker-store.zip
 
+# Tooling / IDE
+_metadata/
+
 # Inno Setup output
-installer/TrackerTracker-Setup.exe
+installer/PixelCrush-Setup.exe
 installer/Output/
