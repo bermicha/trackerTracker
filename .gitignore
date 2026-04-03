@@ -15,3 +15,7 @@ npm-debug.log*
 
 # Store upload package (regenerate with scripts/package-for-store.ps1)
 trackerTracker-store.zip
+
+# Inno Setup output
+installer/TrackerTracker-Setup.exe
+installer/Output/

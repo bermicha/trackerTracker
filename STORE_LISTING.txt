@@ -1,6 +1,13 @@
 Chrome Web Store — listing checklist for Tracker Tracker
 =========================================================
 
+SCREENSHOTS
+-----------
+  Chrome Web Store: at least one screenshot at 1280x800. Representative mockup:
+    store/store-screenshot-1280x800.png
+  After replacing that PNG, if size is not exact, run: .\scripts\resize-store-screenshot.ps1
+  For pixel-accurate UI, capture Gmail with the extension loaded and replace or add images.
+
 PACKAGE
 -------
 1. Run (from repo root, PowerShell):

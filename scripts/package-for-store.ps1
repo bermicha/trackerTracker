@@ -1,25 +1,11 @@
 # Builds trackerTracker-store.zip for Chrome Web Store upload (no .git, no dev scripts).
 $ErrorActionPreference = "Stop"
 $root = Split-Path $PSScriptRoot
+. (Join-Path $PSScriptRoot "extension-files.ps1")
 $outZip = Join-Path $root "trackerTracker-store.zip"
 $staging = Join-Path $env:TEMP "trackerTracker-store-$(Get-Random)"
 New-Item -ItemType Directory -Path $staging -Force | Out-Null
-
-$include = @(
-  "manifest.json",
-  "background.js",
-  "content.js",
-  "content.css",
-  "blocked-pixel.png",
-  "lib",
-  "rules",
-  "icons"
-)
-foreach ($name in $include) {
-  $src = Join-Path $root $name
-  if (-not (Test-Path $src)) { throw "Missing: $src" }
-  Copy-Item -Path $src -Destination (Join-Path $staging $name) -Recurse -Force
-}
+Copy-TrackerExtensionFiles -SourceRoot $root -DestinationFolder $staging
 
 if (Test-Path $outZip) { Remove-Item $outZip -Force }
 Compress-Archive -Path (Join-Path $staging "*") -DestinationPath $outZip -Force

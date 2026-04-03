@@ -1,0 +1,34 @@
+Tracker Tracker — Windows installer options
+=============================================
+
+WHAT GETS INSTALLED
+-------------------
+Files are copied to:
+  %LOCALAPPDATA%\TrackerTracker\extension
+
+Shortcuts launch Google Chrome with:
+  --load-extension="<that folder>"
+
+So the extension loads for that Chrome window without using "Load unpacked" manually.
+(Chrome Web Store install is still the standard for auto-updates; this is for sideloading.)
+
+
+OPTION A — Quick install (no extra tools)
+-----------------------------------------
+1. Clone or unzip the full project (must include scripts\ and installer\).
+2. Double-click:  installer\Install.bat
+   Or run:  powershell -ExecutionPolicy Bypass -File installer\Install-TrackerTracker.ps1
+
+Uninstall (remove files + shortcuts):
+  powershell -ExecutionPolicy Bypass -File installer\Uninstall-TrackerTracker.ps1
+
+
+OPTION B — Setup.exe (Inno Setup)
+---------------------------------
+1. Install Inno Setup 6: https://jrsoftware.org/isinfo.php
+2. Open installer\TrackerTracker.iss in Inno Setup Compiler.
+3. Build → Compile. Output: installer\TrackerTracker-Setup.exe
+4. Run TrackerTracker-Setup.exe on any PC with Chrome installed.
+
+The .iss file pulls extension files from the parent folder (repo root), so compile from a
+full checkout with the same version as manifest.json.
