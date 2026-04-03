@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy Policy — Tracker Tracker</title>
+  <style>
+    body { font-family: system-ui, Segoe UI, Roboto, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; line-height: 1.55; color: #202124; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.1rem; margin-top: 1.5rem; }
+    p, li { font-size: 0.95rem; }
+    code { font-size: 0.9em; }
+    .muted { color: #5f6368; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy — Tracker Tracker</h1>
+  <p class="muted">Last updated: April 3, 2026</p>
+
+  <p>This privacy policy describes how the <strong>Tracker Tracker</strong> Chrome extension (“the Extension”) handles information when you use it with Gmail (<code>mail.google.com</code>).</p>
+
+  <h2>What the Extension does</h2>
+  <p>The Extension analyzes email content shown in Gmail to detect common tracking techniques (for example tracking pixels, known tracking URLs, and related patterns). It can block some tracker network requests and replace certain tracking images with a harmless placeholder. It may show a small badge on conversation rows when trackers were detected for a thread.</p>
+
+  <h2>Data storage (on your device only)</h2>
+  <p>The Extension uses Chrome’s <strong>local storage</strong> (<code>chrome.storage.local</code>) to remember which Gmail threads have had tracker-related findings, so badges can appear in the thread list. This data stays on your computer in your browser profile. <strong>We do not operate servers for this Extension and we do not receive, transmit, or sell this data to ourselves or third parties.</strong></p>
+
+  <h2>Network access and blocking</h2>
+  <p>The Extension requests permission to interact with <strong>https://mail.google.com/*</strong> so it can run in Gmail. It uses Chrome’s <strong>Declarative Net Request</strong> rules to block certain third-party tracker requests when those requests are initiated from Gmail, according to the rule list bundled with the Extension. Blocking happens in the browser; we do not see your traffic.</p>
+
+  <h2>Google</h2>
+  <p>Gmail is a Google product. Your use of Gmail is governed by Google’s terms and privacy policies. This policy only covers the Extension.</p>
+
+  <h2>Changes</h2>
+  <p>We may update this policy if the Extension’s behavior changes. The “Last updated” date will change when it does.</p>
+
+  <h2>Contact</h2>
+  <p>For questions about this policy or the Extension, open an issue on the project repository linked from the Chrome Web Store listing or the Extension’s detail page.</p>
+</body>
+</html>

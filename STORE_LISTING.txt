@@ -1,0 +1,54 @@
+Chrome Web Store — listing checklist for Tracker Tracker
+=========================================================
+
+PACKAGE
+-------
+1. Run (from repo root, PowerShell):
+     .\scripts\package-for-store.ps1
+2. Upload the generated trackerTracker-store.zip in the Developer Dashboard:
+     https://chrome.google.com/webstore/devconsole
+
+PRIVACY POLICY URL (required)
+-----------------------------
+The store requires a public HTTPS URL to this policy.
+
+After you push the docs/ folder, enable GitHub Pages:
+  Repository → Settings → Pages → Build from branch "main" → Folder "/docs" → Save
+
+Then use (adjust username/repo if yours differs):
+  https://bermicha.github.io/trackerTracker/privacy-policy.html
+
+Paste that exact URL in the Privacy policy field in the listing.
+
+SUGGESTED STORE FIELDS
+----------------------
+  Category: Productivity (or Privacy & Security)
+  Language: English
+
+  Short description (132 chars max):
+  Find and block email trackers in Gmail. See a badge on threads with detected trackers.
+
+  Single purpose:
+  The extension only improves privacy in Gmail by detecting/blocking trackers and showing thread badges.
+
+PERMISSION JUSTIFICATIONS (paste in the form when asked)
+------------------------------------------------------
+  storage:
+    Saves per-thread detection results locally so badges can appear in the Gmail thread list. No remote servers.
+
+  declarativeNetRequest:
+    Blocks bundled tracker URL patterns when requests are initiated from mail.google.com, per static rules in the extension.
+
+  Host permission mail.google.com:
+    Required to run the content script only on Gmail.
+
+DATA DISCLOSURE (Chrome questionnaire)
+----------------------------------------
+  - Does the extension handle user data? Yes — locally stored thread metadata (detection summaries).
+  - Is it sold or transferred? No.
+  - Is it used for advertising? No.
+  - Encryption: Data stays in the browser (local storage).
+
+VERSION BUMPS
+-------------
+Before each new upload, increase "version" in manifest.json (e.g. 1.0.1), rebuild the zip, upload new package.

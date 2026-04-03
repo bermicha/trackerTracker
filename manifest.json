@@ -2,7 +2,9 @@
   "manifest_version": 3,
   "name": "Tracker Tracker",
   "version": "1.0.0",
-  "description": "Detects and blocks email trackers (pixels, beacons, known tracking hosts) in Gmail. Shows a badge on threads with trackers.",
+  "description": "Find and block email trackers in Gmail. See a badge on threads with detected trackers.",
+  "homepage_url": "https://github.com/bermicha/trackerTracker",
+  "minimum_chrome_version": "109",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

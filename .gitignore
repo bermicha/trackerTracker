@@ -12,3 +12,6 @@ Desktop.ini
 # Logs / misc
 *.log
 npm-debug.log*
+
+# Store upload package (regenerate with scripts/package-for-store.ps1)
+trackerTracker-store.zip
