@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Tracker Tracker",
+  "version": "1.0.0",
+  "description": "Detects and blocks email trackers (pixels, beacons, known tracking hosts) in Gmail. Shows a badge on threads with trackers.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": ["storage", "declarativeNetRequest"],
+  "host_permissions": ["https://mail.google.com/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://mail.google.com/*"],
+      "js": ["lib/tracker-patterns.js", "lib/scan.js", "content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "tracker_blocklist",
+        "enabled": true,
+        "path": "rules/block_rules.json"
+      }
+    ]
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked-pixel.png"],
+      "matches": ["https://mail.google.com/*"]
+    }
+  ]
+}
